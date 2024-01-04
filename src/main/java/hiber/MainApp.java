@@ -40,7 +40,6 @@ public class MainApp {
         User userByCar = userService.getUserByCar("model1", 1);
         System.out.println(userByCar);
 
-//        userService.dropTables();
         context.close();
     }
 }
