@@ -4,36 +4,34 @@ import hiber.model.User;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-
-import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
 import java.util.List;
 
 @Repository
 public class UserDaoImp implements UserDao {
 
-    private final SessionFactory SESSIONFACTORY;
+    private final SessionFactory sessionFactory;
 
     @Autowired
     public UserDaoImp(SessionFactory sessionFactory) {
-        this.SESSIONFACTORY = sessionFactory;
+        this.sessionFactory = sessionFactory;
     }
 
     @Override
     public void add(User user) {
-        SESSIONFACTORY.getCurrentSession().save(user);
+        sessionFactory.getCurrentSession().save(user);
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public List<User> listUsers() {
-        TypedQuery<User> query = SESSIONFACTORY.getCurrentSession().createQuery("from User");
+        TypedQuery<User> query = sessionFactory.getCurrentSession().createQuery("from User");
         return query.getResultList();
     }
 
     @Override
     public User getUser(Long id) {
-        User user = SESSIONFACTORY.getCurrentSession().get(User.class, id);
+        User user = sessionFactory.getCurrentSession().get(User.class, id);
         if (user == null) {
             System.out.println("Юзер не существует");
         }
@@ -45,13 +43,13 @@ public class UserDaoImp implements UserDao {
         User user = null;
         String hqlQuery = "FROM User u WHERE u.car.model = :model AND u.car.series = :series";
         try {
-            return (User) SESSIONFACTORY.getCurrentSession()
+            List<User> userresultList = sessionFactory.getCurrentSession()
                     .createQuery(hqlQuery)
                     .setParameter("model", model)
                     .setParameter("series", series)
-                    .setMaxResults(1)
-                    .getSingleResult();
-        } catch (NoResultException e) {
+                    .getResultList();
+            user = userresultList.get(0);
+        } catch (IndexOutOfBoundsException e) {
             System.out.println("Юзера с такой машиной нет");
             e.printStackTrace();
         }
